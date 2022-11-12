@@ -4,19 +4,34 @@ import styled from "styled-components";
 import { CSSReset } from "../src/components/CSSReset";
 import Menu from "../src/components/Menu";
 import { StyledTimeline } from "../src/components/Timeline";
+import { videoService } from "../src/service/VideoService";
 
 function HomePage() {
-    const estilosDaHomePage = {
-        // backgroundColor: "red" 
-    };
+    const service = videoService();
     const [valorDoFiltro, setValorDoFiltro] = React.useState("");
-    
+    const [playlists, setPlaylists] = React.useState({});     // config.playlists
 
-    // console.log(config.playlists);
+    React.useEffect(() => {
+        console.log("useEffect");
+        service
+            .getAllVideos()
+            .then((dados) => {
+                console.log(dados.data);
+                // Forma imutavel
+                const novasPlaylists = {};
+                dados.data.forEach((video) => {
+                    if (!novasPlaylists[video.playlist]) novasPlaylists[video.playlist] = [];
+                    novasPlaylists[video.playlist] = [
+                        video,
+                        ...novasPlaylists[video.playlist],
+                    ];
+                });
 
+                setPlaylists(novasPlaylists);
+            });
+    },[]);
     return (
         <>
-            <CSSReset />
             <div style={{
                 display: "flex",
                 flexDirection: "column",
@@ -30,7 +45,7 @@ function HomePage() {
                 </Timeline>
             </div>
         </>
-    );
+    )
 }
 
 export default HomePage
